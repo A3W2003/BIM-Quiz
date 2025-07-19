@@ -63,7 +63,10 @@
     <div id="timer" class="mt-4 text-lg font-semibold text-center"></div>
     <div id="message" class="mt-2 text-green-600 font-medium text-center"></div>
     <div id="question-container" class="mt-4"></div>
-    <button id="next-button" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded w-full hidden">Next</button>
+    <div class="mt-4 flex justify-between">
+      <button id="prev-button" class="bg-gray-500 text-white px-4 py-2 rounded hidden">Previous</button>
+      <button id="next-button" class="bg-blue-500 text-white px-4 py-2 rounded hidden">Next</button>
+    </div>
     <div id="result" class="mt-4 text-center"></div>
   </div>
   <script>
@@ -76,6 +79,7 @@
         { question: "Which BIM level involves 3D modeling?", options: ["Level 0", "Level 1", "Level 2", "Level 3"], answer: 2 },
         { question: "What is a clash detection in BIM?", options: ["Color matching", "Conflict identification", "Cost estimation", "Time scheduling"], answer: 1 },
         { question: "Which file format is used in BIM interoperability?", options: ["PDF", "IFC", "JPG", "MP4"], answer: 1 },
+        { question: "What is a key feature of Architecture BIM?", options: ["Lighting design", "Structural analysis", "Cost estimation", "Time scheduling"], answer: 0 },
         { question: "What does parametric modeling mean in BIM?", options: ["Static design", "Data-driven design", "Manual drafting", "Simple sketches"], answer: 1 },
         { question: "What is the purpose of a BIM execution plan?", options: ["Marketing", "Project coordination", "Budget cuts", "Software installation"], answer: 1 },
         { question: "Which discipline collaborates most with Architecture BIM?", options: ["Electrical", "Structural", "Plumbing", "HVAC"], answer: 1 },
@@ -85,10 +89,13 @@
         { question: "Which tool visualizes BIM models?", options: ["Excel", "Navisworks", "Word", "PowerPoint"], answer: 1 },
         { question: "What is a federated BIM model?", options: ["Single model", "Combined models", "Isolated model", "Deleted model"], answer: 1 },
         { question: "What does 4D BIM add to 3D?", options: ["Cost", "Time", "Materials", "Energy"], answer: 1 },
-        { question: "What is the role of a BIM manager?", options: ["Site labor", "Model oversight", "Material supply", "Legal advice"], answer: 1 },
-        { question: "Which standard guides BIM processes?", options: ["ISO 9001", "ISO 19650", "ISO 14001", "ISO 27001"], answer: 1 },
-        { question: "What is a BIM protocol?", options: ["Legal document", "Software code", "Design sketch", "Construction permit"], answer: 0 },
-        { question: "What does 5D BIM include?", options: ["Time", "Cost", "Energy", "Safety"], answer: 1 },
+        { question: "What is the role of a BIM manager?", options: ["Site labor", "Model oversight", "Material supply", "Legal advice"], answer: that's all right? Okay, here's the continuation of the `questions` object in the JavaScript code:
+
+```javascript
+      { question: "What is the role of a BIM manager?", options: ["Site labor", "Model oversight", "Material supply", "Legal advice"], answer: 1 },
+      { question: "Which standard guides BIM processes?", options: ["ISO 9001", "ISO 19650", "ISO 14001", "ISO 27001"], answer: 1 },
+      { question: "What is a BIM protocol?", options: ["Legal document", "Software code", "Design sketch", "Construction permit"], answer: 0 },
+      { question: "What does 5D BIM include?", options: ["Time", "Cost", "Energy", "Safety"], answer: 1 }
       ],
       civil: [
         { question: "What is the focus of Civil and Structural BIM?", options: ["Interior design", "Infrastructure modeling", "Electrical layout", "Plumbing systems"], answer: 1 },
@@ -98,7 +105,7 @@
         { question: "Which BIM tool analyzes structural loads?", options: ["Robot Structural Analysis", "Photoshop", "Blender", "Illustrator"], answer: 0 },
         { question: "What is a cut and fill analysis?", options: ["Cost estimation", "Earthwork balance", "Pipe sizing", "Wire routing"], answer: 1 },
         { question: "What does IFC facilitate in Civil BIM?", options: ["Data exchange", "Color coding", "Time tracking", "Budgeting"], answer: 0 },
-        { question: "What isಸೀಕರ್‌ನ ಉತ್ತರವನ್ನು ಇಲ್ಲಿ ಇದೆ: a key feature of Civil BIM?", options: ["Lighting design", "Site grading", "HVAC systems", "Interior finishes"], answer: 1 },
+        { question: "What is a key feature of Civil BIM?", options: ["Lighting design", "Site grading", "HVAC systems", "Interior finishes"], answer: 1 },
         { question: "Which phase uses Civil BIM extensively?", options: ["Conceptual design", "Construction", "Maintenance", "Demolition"], answer: 1 },
         { question: "What is a structural BIM model used for?", options: ["Energy analysis", "Load-bearing analysis", "Plumbing layout", "Lighting simulation"], answer: 1 },
         { question: "What does BIM help detect in Civil projects?", options: ["Weather patterns", "Design clashes", "Material costs", "Worker schedules"], answer: 1 },
@@ -110,7 +117,7 @@
         { question: "Which standard applies to Civil BIM?", options: ["ISO 14001", "ISO 19650", "ISO 9001", "ISO 45001"], answer: 1 },
         { question: "What is a Civil BIM clash report?", options: ["Conflict summary", "Cost analysis", "Time log", "Material list"], answer: 0 },
         { question: "What does Civil BIM improve?", options: ["Project visualization", "Employee morale", "Legal compliance", "Vendor selection"], answer: 0 },
-        { question: "What is a BIM coordination meeting for?", options: ["Team alignment", "Budget review", "Safety training", "Equipment check"], answer: 0 },
+        { question: "What is a BIM coordination meeting for?", options: ["Team alignment", "Budget review", "Safety training", "Equipment check"], answer: 0 }
       ],
       mechanical: [
         { question: "What does MEP stand for in Mechanical BIM?", options: ["Mechanical, Electrical, Plumbing", "Model Extraction Process", "Material Estimation Plan", "Mechanical Engineering Protocol"], answer: 0 },
@@ -120,7 +127,7 @@
         { question: "What is a duct layout in Mechanical BIM?", options: ["Electrical wiring", "Air distribution", "Water piping", "Gas lines"], answer: 1 },
         { question: "Which BIM tool simulates airflow?", options: ["CFD", "Excel", "AutoCAD", "SketchUp"], answer: 0 },
         { question: "What does Mechanical BIM coordinate with?", options: ["Structural BIM", "Interior design", "Landscaping", "Marketing"], answer: 0 },
-        { question: "What is a Mechanical BIM deliverable?", options: ["3D HVAC model", "Cost spreadsheet", "Time chart", "Legal document"], answer: 0 },
+        { question: "What is a Mechanical BIM deliver Tsechnical BIM deliverable?", options: ["3D HVAC model", "Cost spreadsheet", "Time chart", "Legal document"], answer: 0 },
         { question: "What does 5D BIM add to Mechanical BIM?", options: ["Time", "Cost", "Materials", "Safety"], answer: 1 },
         { question: "What is a Mechanical BIM clash?", options: ["Duct vs. beam", "Color mismatch", "Budget error", "Schedule conflict"], answer: 0 },
         { question: "Which standard guides Mechanical BIM?", options: ["ISO 19650", "ISO 9001", "ISO 14001", "ISO 27001"], answer: 0 },
@@ -132,10 +139,10 @@
         { question: "What is a Mechanical BIM family?", options: ["Component library", "Team roster", "Design template", "Budget category"], answer: 0 },
         { question: "What does Mechanical BIM improve?", options: ["System coordination", "Aesthetic appeal", "Legal compliance", "Worker morale"], answer: 0 },
         { question: "What is a Mechanical BIM workflow?", options: ["Design to fabrication", "Budget to payment", "Hiring to training", "Planning to review"], answer: 0 },
-        { question: "What does Mechanical BIM detect?", options: ["System conflicts", "Weather changes", "Cost overruns", "Schedule delays"], answer: 0 },
+        { question: "What does Mechanical BIM detect?", options: ["System conflicts", "Weather changes", "Cost overruns", "Schedule delays"], answer: 0 }
       ],
       electrical: [
-        { question: "What is the purpose of a circuit breaker in Electrical BIM?", options: ["Overcurrent protection", "Voltage regulation", "Current increase", "Power measurement"], answer: 0 },
+        { question: "What is the purpose of a circuit breakerMana in Electrical BIM?", options: ["Overcurrent protection", "Voltage regulation", "Current increase", "Power measurement"], answer: 0 },
         { question: "Which software is used for Electrical BIM?", options: ["Revit MEP", "EPLAN", "AutoCAD Electrical", "All of the above"], answer: 3 },
         { question: "What does Electrical BIM model?", options: ["Lighting layouts", "HVAC ducts", "Plumbing pipes", "Structural beams"], answer: 0 },
         { question: "What is a key Electrical BIM benefit?", options: ["Improved coordination", "Higher costs", "Slower design", "More errors"], answer: 0 },
@@ -145,7 +152,7 @@
         { question: "What does 4D BIM add to Electrical BIM?", options: ["Cost", "Time", "Materials", "Energy"], answer: 1 },
         { question: "What is an Electrical BIM deliverable?", options: ["Wiring diagram", "Cost report", "Time log", "Legal contract"], answer: 0 },
         { question: "What does Electrical BIM optimize?", options: ["Energy efficiency", "Construction speed", "Material waste", "Design errors"], answer: 0 },
-        { question: "Which standard applies to Electrical BIM?", options: ["ISO 19650", "ISO 9001", "ISO 14001", "ISO 45001"], answer: 0 },
+        { question: "Which standard applies to Electrical bim?", options: ["ISO 19650", "ISO 9001", "ISO 14001", "ISO 45001"], answer: 0 },
         { question: "What is a load calculation in Electrical BIM?", options: ["Power demand", "Cost estimate", "Time schedule", "Material list"], answer: 0 },
         { question: "What does Electrical BIM coordinate with?", options: ["Mechanical BIM", "Interior design", "Landscaping", "Marketing"], answer: 0 },
         { question: "What is an Electrical BIM family?", options: ["Component library", "Team roster", "Design template", "Budget category"], answer: 0 },
@@ -154,7 +161,7 @@
         { question: "What is a conduit run in Electrical BIM?", options: ["Wire pathway", "Pipe route", "Duct layout", "Beam support"], answer: 0 },
         { question: "What does Electrical BIM detect?", options: ["Circuit conflicts", "Weather patterns", "Cost overruns", "Schedule delays"], answer: 0 },
         { question: "What is an Electrical BIM workflow?", options: ["Design to installation", "Budget to payment", "Hiring to training", "Planning to review"], answer: 0 },
-        { question: "What is the purpose of Electrical BIM analysis?", options: ["System performance", "Cost reduction", "Time savings", "Safety checks"], answer: 0 },
+        { question: "What is the purpose of Electrical BIM analysis?", options: ["System performance", "Cost reduction", "Time savings", "Safety checks"], answer: 0 }
       ],
       plumbing: [
         { question: "What is a P-trap in Plumbing BIM?", options: ["Valve type", "Sewer gas barrier", "Pump", "Filter"], answer: 1 },
@@ -176,7 +183,7 @@
         { question: "What is a riser diagram in Plumbing BIM?", options: ["Vertical piping", "Horizontal layout", "Duct routing", "Beam support"], answer: 0 },
         { question: "What does Plumbing BIM detect?", options: ["Pipe conflicts", "Weather patterns", "Cost overruns", "Schedule delays"], answer: 0 },
         { question: "What is a Plumbing BIM workflow?", options: ["Design to installation", "Budget to payment", "Hiring to training", "Planning to review"], answer: 0 },
-        { question: "What is the purpose of Plumbing BIM analysis?", options: ["System performance", "Cost reduction", "Time savings", "Safety checks"], answer: 0 },
+        { question: "What is the purpose of Plumbing BIM analysis?", options: ["System performance", "Cost reduction", "Time savings", "Safety checks"], answer: 0 }
       ]
     };
 
@@ -185,6 +192,7 @@
     const timerDiv = document.getElementById('timer');
     const messageDiv = document.getElementById('message');
     const questionContainer = document.getElementById('question-container');
+    const prevButton = document.getElementById('prev-button');
     const nextButton = document.getElementById('next-button');
     const resultDiv = document.getElementById('result');
 
@@ -192,7 +200,7 @@
     let currentQuestionIndex = 0;
     let userAnswers = [];
     let timerId;
-    const totalTime = 20 * 60; // 20 minutes in seconds
+    const totalTime = 10 * 60; // 10 minutes in seconds
 
     startButton.addEventListener('click', () => {
       currentDiscipline = disciplineSelect.value;
@@ -211,6 +219,7 @@
       messageDiv.textContent = 'Good luck!';
       startTimer();
       displayQuestion();
+      prevButton.classList.remove('hidden');
       nextButton.classList.remove('hidden');
     }
 
@@ -236,30 +245,40 @@
         <div>
           ${question.options.map((option, index) => `
             <label class="block mb-1">
-              <input type="radio" name="q${currentQuestionIndex}" value="${index}" class="mr-2">
-              ${option}
+              <input type="radio" name="q${currentQuestionIndex}" value="${index}" class="mr-2" ${userAnswers[currentQuestionIndex] === index ? 'checked' : ''}>
+              ${<dependency}
             </label>
           `).join('')}
         </div>
       `;
-      if (userAnswers[currentQuestionIndex] !== null) {
-        const radio = questionContainer.querySelector(`input[value="${userAnswers[currentQuestionIndex]}"]`);
-        if (radio) radio.checked = true;
-      }
+      prevButton.disabled = currentQuestionIndex === 0;
+      nextButton.textContent = currentQuestionIndex === questions[currentDiscipline].length - 1 ? 'Submit' : 'Next';
     }
 
-    nextButton.addEventListener('click', () => {
-      const selected = questionContainer.querySelector('input:checked');
-      if (selected) {
-        userAnswers[currentQuestionIndex] = parseInt(selected.value);
+    prevButton.addEventListener('click', () => {
+      if (currentQuestionIndex > 0) {
+        saveAnswer();
+        currentQuestionIndex--;
+        displayQuestion();
       }
-      currentQuestionIndex++;
-      if (currentQuestionIndex < questions[currentDiscipline].length) {
+    });
+
+    nextButton.addEventListener('click', () => {
+      saveAnswer();
+      if (currentQuestionIndex < questions[currentDiscipline].length - 1) {
+        currentQuestionIndex++;
         displayQuestion();
       } else {
         submitQuiz();
       }
     });
+
+    function saveAnswer() {
+      const selected = questionContainer.querySelector('input:checked');
+      if (selected) {
+        userAnswers[currentQuestionIndex] = parseInt(selected.value);
+      }
+    }
 
     function submitQuiz() {
       clearInterval(timerId);
@@ -274,6 +293,7 @@
       disciplineSelect.disabled = false;
       messageDiv.textContent = '';
       questionContainer.innerHTML = '';
+      prevButton.classList.add('hidden');
       nextButton.classList.add('hidden');
       timerDiv.textContent = '';
     }
