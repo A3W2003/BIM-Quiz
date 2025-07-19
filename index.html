@@ -42,150 +42,182 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BIM MCQ Quiz</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .modal { display: none; }
-    .modal.active { display: flex; }
-  </style>
+  <title>BIM Quiz</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-  <div class="container mx-auto p-6">
-    <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">BIM Disciplines MCQ Quiz</h1>
-    
-    <!-- Discipline Selection -->
-    <div class="mb-8">
-      <label for="discipline" class="block text-lg font-semibold mb-2">Select Discipline:</label>
-      <select id="discipline" class="w-full p-2 border rounded-md">
-        <option value="architecture">BIM Architecture</option>
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold text-center mb-6">BIM Quiz</h1>
+    <div class="mb-4">
+      <label for="discipline" class="block text-lg font-medium">Select Discipline:</label>
+      <select id="discipline" class="mt-1 block w-full p-2 border rounded">
+        <option value="architecture">Architecture</option>
         <option value="civil">Civil and Structural</option>
         <option value="mep">MEP</option>
       </select>
     </div>
-
-    <!-- Quiz Container -->
-    <div id="quiz-container" class="bg-white p-6 rounded-lg shadow-lg">
-      <h2 id="quiz-title" class="text-2xl font-semibold mb-4"></h2>
+    <div id="quiz" class="bg-white p-6 rounded-lg shadow-md">
+      <h2 id="discipline-title" class="text-2xl font-semibold mb-4"></h2>
+      <div id="timer" class="text-lg font-medium mb-4"></div>
       <div id="questions"></div>
-      <button id="submit-btn" class="mt-6 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Submit Answers</button>
+      <button id="submit" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
     </div>
-
-    <!-- Results Modal -->
-    <div id="results-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg max-w-md w-full">
-        <h2 class="text-2xl font-bold mb-4">Quiz Results</h2>
-        <p id="results-text" class="mb-4"></p>
-        <button id="close-modal" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Close</button>
+    <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-white p-6 rounded-lg">
+        <h3 class="text-xl font-bold mb-4">Quiz Results</h3>
+        <p id="score"></p>
+        <button id="close" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Close</button>
       </div>
     </div>
   </div>
-
   <script>
+    const architectureQuestions = [
+      // Easy (4 questions)
+      { question: "What does BIM stand for?", options: ["Building Information Modeling", "Basic Integrated Management", "Building Infrastructure Model", "Business Information Management"], answer: 0, difficulty: "Easy" },
+      { question: "Which software is commonly used for BIM?", options: ["AutoCAD", "Revit", "SketchUp", "Photoshop"], answer: 1, difficulty: "Easy" },
+      { question: "What is the primary purpose of BIM?", options: ["2D drafting", "3D modeling", "Project management", "All of the above"], answer: 3, difficulty: "Easy" },
+      { question: "What is a BIM model?", options: ["A physical model", "A digital representation", "A cost estimate", "A schedule"], answer: 1, difficulty: "Easy" },
+      // Medium (4 questions)
+      { question: "What is a BIM execution plan?", options: ["A document outlining BIM processes", "A software tool", "A type of BIM model", "A certification"], answer: 0, difficulty: "Medium" },
+      { question: "What is clash detection in BIM?", options: ["Finding errors in code", "Identifying conflicts in models", "Estimating costs", "Scheduling tasks"], answer: 1, difficulty: "Medium" },
+      { question: "What is the difference between BIM and CAD?", options: ["BIM is 3D, CAD is 2D", "BIM includes data, CAD is just geometry", "BIM is for architects, CAD is for engineers", "There is no difference"], answer: 1, difficulty: "Medium" },
+      { question: "What does LOD stand for in BIM?", options: ["Level of Detail", "Level of Development", "Both A and B", "None of the above"], answer: 2, difficulty: "Medium" },
+      // Difficult (4 questions)
+      { question: "What is parametric modeling in BIM?", options: ["Modeling with parameters", "Automated modeling", "Manual drafting", "3D printing"], answer: 0, difficulty: "Difficult" },
+      { question: "What is the role of BIM in sustainable design?", options: ["Energy analysis", "Material selection", "Waste reduction", "All of the above"], answer: 3, difficulty: "Difficult" },
+      { question: "What is a federated BIM model?", options: ["A single model", "Combined models from different disciplines", "A model with federal data", "A government standard"], answer: 1, difficulty: "Difficult" },
+      { question: "What is a future trend of BIM?", options: ["Integration with AI", "Virtual reality", "Automation", "All of the above"], answer: 3, difficulty: "Difficult" }
+    ];
+
+    const civilQuestions = [
+      // Easy (4 questions)
+      { question: "What is the primary material in civil engineering?", options: ["Steel", "Concrete", "Wood", "All of the above"], answer: 3, difficulty: "Easy" },
+      { question: "What does CAD stand for?", options: ["Computer-Aided Design", "Computer-Animated Design", "Computer-Assisted Drafting", "Computer-Advanced Design"], answer: 0, difficulty: "Easy" },
+      { question: "What is the purpose of a foundation?", options: ["To support the structure", "To provide insulation", "To enhance aesthetics", "To reduce costs"], answer: 0, difficulty: "Easy" },
+      { question: "What is a beam in structural engineering?", options: ["A horizontal member", "A vertical member", "A diagonal member", "A foundation element"], answer: 0, difficulty: "Easy" },
+      // Medium (4 questions)
+      { question: "What differs between a column and a pillar?", options: ["No difference", "Columns are load-bearing, pillars are decorative", "Pillars are load-bearing, columns are decorative", "Columns are concrete, pillars are steel"], answer: 1, difficulty: "Medium" },
+      { question: "What is reinforced concrete?", options: ["Concrete with steel bars", "Concrete with fibers", "Concrete with additives", "All of the above"], answer: 0, difficulty: "Medium" },
+      { question: "What is the purpose of a retaining wall?", options: ["To hold back soil", "To support a roof", "To divide spaces", "To provide seating"], answer: 0, difficulty: "Medium" },
+      { question: "What is a geotechnical investigation?", options: ["Study of soil properties", "Study of building materials", "Study of structural designs", "Study of construction methods"], answer: 0, difficulty: "Medium" },
+      // Difficult (4 questions)
+      { question: "What is prestressed concrete?", options: ["Concrete with pre-applied stress", "Concrete with post-applied stress", "Concrete with no stress", "Concrete with fibers"], answer: 0, difficulty: "Difficult" },
+      { question: "What is the role of BIM in civil engineering?", options: ["Design visualization", "Clash detection", "Quantity takeoff", "All of the above"], answer: 3, difficulty: "Difficult" },
+      { question: "What is a cantilever beam?", options: ["A beam supported at both ends", "A beam supported at one end", "A beam with no support", "A beam with multiple supports"], answer: 1, difficulty: "Difficult" },
+      { question: "What is the finite element method?", options: ["A numerical technique for solving problems", "A design software", "A construction method", "A material testing procedure"], answer: 0, difficulty: "Difficult" }
+    ];
+
+    const mepQuestions = [
+      // Easy (4 questions)
+      { question: "What does MEP stand for?", options: ["Mechanical, Electrical, Plumbing", "Materials, Engineering, Planning", "Management, Execution, Performance", "Modeling, Estimation, Production"], answer: 0, difficulty: "Easy" },
+      { question: "What is HVAC?", options: ["Heating, Ventilation, Air Conditioning", "High Voltage Alternating Current", "Home Ventilation and Cooling", "Heating and Ventilation Control"], answer: 0, difficulty: "Easy" },
+      { question: "What is the purpose of a circuit breaker?", options: ["To protect against overcurrent", "To regulate voltage", "To increase current", "To measure power"], answer: 0, difficulty: "Easy" },
+      { question: "What is a duct in HVAC?", options: ["A pipe for air", "A wire for electricity", "A tube for water", "A structural element"], answer: 0, difficulty: "Easy" },
+      // Medium (4 questions)
+      { question: "What differs between AC and DC current?", options: ["AC alternates, DC is constant", "AC is for homes, DC for cars", "AC is safer, DC is dangerous", "No difference"], answer: 0, difficulty: "Medium" },
+      { question: "What is a P-trap in plumbing?", options: ["A type of valve", "A bend to prevent sewer gas", "A pump", "A filter"], answer: 1, difficulty: "Medium" },
+      { question: "What is insulation’s purpose in MEP?", options: ["To reduce heat loss", "To prevent electrical shocks", "To minimize noise", "All of the above"], answer: 3, difficulty: "Medium" },
+      { question: "What is a BIM coordinator’s role in MEP?", options: ["To manage models", "To coordinate disciplines", "To perform calculations", "All of the above"], answer: 1, difficulty: "Medium" },
+      // Difficult (4 questions)
+      { question: "What is load calculation in HVAC?", options: ["Determining heating/cooling needs", "Calculating electrical loads", "Estimating material costs", "Scheduling tasks"], answer: 0, difficulty: "Difficult" },
+      { question: "What is BIM’s role in MEP coordination?", options: ["Clash detection", "Scheduling", "Cost estimation", "All of the above"], answer: 0, difficulty: "Difficult" },
+      { question: "What is a VAV system in HVAC?", options: ["Variable Air Volume", "Ventilation and Airflow Valve", "Vacuum Assisted Ventilation", "Vertical Airflow Vector"], answer: 0, difficulty: "Difficult" },
+      { question: "What does a transformer do in electrical systems?", options: ["Steps up/down voltage", "Converts AC to DC", "Stores energy", "Measures current"], answer: 0, difficulty: "Difficult" }
+    ];
+
     const questions = {
-      architecture: [
-        // Easy (4)
-        { question: "What does BIM stand for?", options: ["Building Information Modeling", "Building Integration Model", "Basic Information Management", "Building Infrastructure Mapping"], answer: 0, difficulty: "Easy" },
-        { question: "Which software is commonly used for BIM in architecture?", options: ["AutoCAD", "Revit", "SketchUp", "Photoshop"], answer: 1, difficulty: "Easy" },
-        { question: "What is a primary benefit of BIM?", options: ["Increased project cost", "Improved collaboration", "Reduced design accuracy", "Slower project delivery"], answer: 1, difficulty: "Easy" },
-        { question: "What is a BIM model primarily used for?", options: ["2D drafting", "3D visualization and coordination", "Word processing", "Structural analysis only"], answer: 1, difficulty: "Easy" },
-        // Medium (3)
-        { question: "What is Clash Detection in BIM?", options: ["A method to detect software bugs", "A process to identify conflicts between model elements", "A cost estimation technique", "A rendering process"], answer: 1, difficulty: "Medium" },
-        { question: "Which BIM level involves full collaboration and integrated data?", options: ["Level 0", "Level 1", "Level 2", "Level 3"], answer: 3, difficulty: "Medium" },
-        { question: "What is a BIM Execution Plan (BEP)?", options: ["A construction schedule", "A document outlining BIM processes and responsibilities", "A cost estimation report", "A safety protocol"], answer: 1, difficulty: "Medium" },
-        // Difficult (3)
-        { question: "What standard governs BIM data exchange?", options: ["IFC", "DWG", "PDF", "JPEG"], answer: 0, difficulty: "Difficult" },
-        { question: "How does parametric modeling enhance BIM?", options: ["By limiting design flexibility", "By allowing dynamic updates to model elements", "By reducing model accuracy", "By increasing manual drafting"], answer: 1, difficulty: "Difficult" },
-        { question: "What is LOD in BIM?", options: ["Level of Design", "Level of Development", "Limit of Drawing", "Level of Detail"], answer: 1, difficulty: "Difficult" }
-      ],
-      civil: [
-        // Easy (4)
-        { question: "What is the primary focus of Civil BIM?", options: ["Interior design", "Infrastructure and site modeling", "Electrical systems", "Plumbing design"], answer: 1, difficulty: "Easy" },
-        { question: "Which software is used for Civil BIM?", options: ["Civil 3D", "Revit", "Lumion", "Rhino"], answer: 0, difficulty: "Easy" },
-        { question: "What does a topographic survey provide in Civil BIM?", options: ["Cost estimates", "Site terrain data", "Lighting analysis", "Material schedules"], answer: 1, difficulty: "Easy" },
-        { question: "What is a common output of Civil BIM?", options: ["3D site model", "2D floor plans", "HVAC schedules", "Furniture layouts"], answer: 0, difficulty: "Easy" },
-        // Medium (3)
-        { question: "What is a cut and fill analysis in Civil BIM?", options: ["A structural load test", "A method to balance earthwork volumes", "A plumbing coordination", "A rendering technique"], answer: 1, difficulty: "Medium" },
-        { question: "How does Civil BIM aid in road design?", options: ["By creating furniture layouts", "By modeling alignments and profiles", "By analyzing HVAC systems", "By rendering interiors"], answer: 1, difficulty: "Medium" },
-        { question: "What is a digital terrain model (DTM)?", options: ["A 2D floor plan", "A 3D representation of site topography", "A structural analysis tool", "A cost estimation report"], answer: 1, difficulty: "Medium" },
-        // Difficult (3)
-        { question: "What is the role of GIS in Civil BIM?", options: ["Rendering animations", "Integrating geospatial data", "Structural load analysis", "Lighting simulation"], answer: 1, difficulty: "Difficult" },
-        { question: "What is a federated model in Civil BIM?", options: ["A single-discipline model", "A combined model from multiple disciplines", "A 2D drawing set", "A cost database"], answer: 1, difficulty: "Difficult" },
-        { question: "How does Civil BIM support lifecycle management?", options: ["By limiting data access", "By integrating design and maintenance data", "By reducing model accuracy", "By focusing on rendering"], answer: 1, difficulty: "Difficult" }
-      ],
-      mep: [
-        // Easy (4)
-        { question: "What does MEP stand for in BIM?", options: ["Mechanical, Electrical, Plumbing", "Model Extraction Process", "Material Estimation Plan", "Mechanical Engineering Protocol"], answer: 0, difficulty: "Easy" },
-        { question: "Which system is modeled in MEP BIM?", options: ["Structural beams", "HVAC systems", "Furniture layouts", "Exterior cladding"], answer: 1, difficulty: "Easy" },
-        { question: "What is a benefit of MEP BIM?", options: ["Reduced coordination", "Improved system clash detection", "Increased project cost", "Slower design process"], answer: 1, difficulty: "Easy" },
-        { question: "What software is commonly used for MEP BIM?", options: ["Revit MEP", "AutoCAD", "Sketchup", "Blender"], answer: 0, difficulty: "Easy" },
-        // Medium (3)
-        { question: "What is a spool drawing in MEP BIM?", options: ["A 3D rendering", "A detailed fabrication drawing", "A cost estimate", "A site plan"], answer: 1, difficulty: "Medium" },
-        { question: "How does MEP BIM improve energy analysis?", options: ["By limiting data", "By integrating system performance data", "By reducing model accuracy", "By focusing on rendering"], answer: 1, difficulty: "Medium" },
-        { question: "What is a common MEP BIM deliverable?", options: ["Furniture schedule", "Coordination drawings", "Topographic survey", "Interior renderings"], answer: 1, difficulty: "Medium" },
-        // Difficult (3)
-        { question: "What is the purpose of a BIM coordination meeting?", options: ["To finalize cost estimates", "To resolve interdisciplinary clashes", "To create 2D drawings", "To render animations"], answer: 1, difficulty: "Difficult" },
-        { question: "What standard ensures MEP BIM interoperability?", options: ["IFC", "DWG", "PNG", "TXT"], answer: 0, difficulty: "Difficult" },
-        { question: "How does MEP BIM support facility management?", options: ["By limiting data access", "By providing as-built system data", "By reducing model accuracy", "By focusing on rendering"], answer: 1, difficulty: "Difficult" }
-      ]
+      architecture: architectureQuestions,
+      civil: civilQuestions,
+      mep: mepQuestions
     };
 
-    let currentDiscipline = 'architecture';
-    let userAnswers = {};
-
     const disciplineSelect = document.getElementById('discipline');
-    const quizContainer = document.getElementById('quiz-container');
-    const quizTitle = document.getElementById('quiz-title');
+    const quizDiv = document.getElementById('quiz');
+    const disciplineTitle = document.getElementById('discipline-title');
+    const timerDiv = document.getElementById('timer');
     const questionsDiv = document.getElementById('questions');
-    const submitBtn = document.getElementById('submit-btn');
-    const resultsModal = document.getElementById('results-modal');
-    const resultsText = document.getElementById('results-text');
-    const closeModalBtn = document.getElementById('close-modal');
+    const submitBtn = document.getElementById('submit');
+    const modal = document.getElementById('modal');
+    const scoreP = document.getElementById('score');
+    const closeBtn = document.getElementById('close');
 
-    function loadQuiz() {
-      quizTitle.textContent = `BIM ${currentDiscipline.charAt(0).toUpperCase() + currentDiscipline.slice(1)} Quiz`;
+    let currentDiscipline = 'architecture';
+    let timeLeft = 15 * 60; // 15 minutes in seconds
+    let timerId;
+
+    function loadQuestions() {
+      const discipline = questions[currentDiscipline];
+      disciplineTitle.textContent = currentDiscipline.charAt(0).toUpperCase() + currentDiscipline.slice(1);
       questionsDiv.innerHTML = '';
-      userAnswers = {};
-
-      questions[currentDiscipline].forEach((q, index) => {
-        const questionDiv = document.createElement('div');
-        questionDiv.className = 'mb-6';
-        questionDiv.innerHTML = `
-          <p class="font-semibold">${index + 1}. ${q.question} <span class="text-gray-500">(${q.difficulty})</span></p>
-          ${q.options.map((option, i) => `
-            <label class="block">
-              <input type="radio" name="q${index}" value="${i}" class="mr-2">
-              ${option}
-            </label>
-          `).join('')}
+      discipline.forEach((q, index) => {
+        const questionHtml = `
+          <div class="mb-4">
+            <p class="font-medium">${index + 1}. ${q.question} (${q.difficulty})</p>
+            ${q.options.map((option, i) => `
+              <label class="block ml-4">
+                <input type="radio" name="q${index}" value="${i}" class="mr-2"> ${option}
+              </label>
+            `).join('')}
+          </div>
         `;
-        questionsDiv.appendChild(questionDiv);
+        questionsDiv.innerHTML += questionHtml;
       });
+      submitBtn.disabled = false; // Re-enable submit button on reset
+    }
+
+    function startTimer() {
+      clearInterval(timerId);
+      timeLeft = 15 * 60;
+      updateTimer();
+      timerId = setInterval(() => {
+        timeLeft--;
+        updateTimer();
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          timerDiv.textContent = "Time's up!";
+          submitQuiz();
+        }
+      }, 1000);
+    }
+
+    function updateTimer() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerDiv.textContent = `Time left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+
+    function submitQuiz() {
+      clearInterval(timerId);
+      submitBtn.disabled = true; // Prevent multiple submissions
+      let score = 0;
+      const discipline = questions[currentDiscipline];
+      discipline.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        if (selected && parseInt(selected.value) === q.answer) {
+          score++;
+        }
+      });
+      scoreP.textContent = `You scored ${score} out of ${discipline.length}`;
+      modal.classList.remove('hidden');
     }
 
     disciplineSelect.addEventListener('change', (e) => {
       currentDiscipline = e.target.value;
-      loadQuiz();
+      loadQuestions();
+      startTimer();
     });
 
-    submitBtn.addEventListener('click', () => {
-      let score = 0;
-      questions[currentDiscipline].forEach((q, index) => {
-        const selected = document.querySelector(`input[name="q${index}"]:checked`);
-        userAnswers[index] = selected ? parseInt(selected.value) : null;
-        if (userAnswers[index] === q.answer) score++;
-      });
+    submitBtn.addEventListener('click', submitQuiz);
 
-      resultsText.textContent = `You scored ${score} out of ${questions[currentDiscipline].length}!`;
-      resultsModal.classList.add('active');
+    closeBtn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      loadQuestions();
+      startTimer();
     });
 
-    closeModalBtn.addEventListener('click', () => {
-      resultsModal.classList.remove('active');
-      loadQuiz();
-    });
-
-    loadQuiz();
+    // Initialize quiz
+    loadQuestions();
+    startTimer();
   </script>
 </body>
 </html>
