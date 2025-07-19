@@ -1,0 +1,191 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIM MCQ Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .modal { display: none; }
+    .modal.active { display: flex; }
+  </style>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto p-6">
+    <h1 class="text-4xl font-bold text-center mb-8 text-blue-600">BIM Disciplines MCQ Quiz</h1>
+    
+    <!-- Discipline Selection -->
+    <div class="mb-8">
+      <label for="discipline" class="block text-lg font-semibold mb-2">Select Discipline:</label>
+      <select id="discipline" class="w-full p-2 border rounded-md">
+        <option value="architecture">BIM Architecture</option>
+        <option value="civil">Civil and Structural</option>
+        <option value="mep">MEP</option>
+      </select>
+    </div>
+
+    <!-- Quiz Container -->
+    <div id="quiz-container" class="bg-white p-6 rounded-lg shadow-lg">
+      <h2 id="quiz-title" class="text-2xl font-semibold mb-4"></h2>
+      <div id="questions"></div>
+      <button id="submit-btn" class="mt-6 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Submit Answers</button>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg max-w-md w-full">
+        <h2 class="text-2xl font-bold mb-4">Quiz Results</h2>
+        <p id="results-text" class="mb-4"></p>
+        <button id="close-modal" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = {
+      architecture: [
+        // Easy (4)
+        { question: "What does BIM stand for?", options: ["Building Information Modeling", "Building Integration Model", "Basic Information Management", "Building Infrastructure Mapping"], answer: 0, difficulty: "Easy" },
+        { question: "Which software is commonly used for BIM in architecture?", options: ["AutoCAD", "Revit", "SketchUp", "Photoshop"], answer: 1, difficulty: "Easy" },
+        { question: "What is a primary benefit of BIM?", options: ["Increased project cost", "Improved collaboration", "Reduced design accuracy", "Slower project delivery"], answer: 1, difficulty: "Easy" },
+        { question: "What is a BIM model primarily used for?", options: ["2D drafting", "3D visualization and coordination", "Word processing", "Structural analysis only"], answer: 1, difficulty: "Easy" },
+        // Medium (3)
+        { question: "What is Clash Detection in BIM?", options: ["A method to detect software bugs", "A process to identify conflicts between model elements", "A cost estimation technique", "A rendering process"], answer: 1, difficulty: "Medium" },
+        { question: "Which BIM level involves full collaboration and integrated data?", options: ["Level 0", "Level 1", "Level 2", "Level 3"], answer: 3, difficulty: "Medium" },
+        { question: "What is a BIM Execution Plan (BEP)?", options: ["A construction schedule", "A document outlining BIM processes and responsibilities", "A cost estimation report", "A safety protocol"], answer: 1, difficulty: "Medium" },
+        // Difficult (3)
+        { question: "What standard governs BIM data exchange?", options: ["IFC", "DWG", "PDF", "JPEG"], answer: 0, difficulty: "Difficult" },
+        { question: "How does parametric modeling enhance BIM?", options: ["By limiting design flexibility", "By allowing dynamic updates to model elements", "By reducing model accuracy", "By increasing manual drafting"], answer: 1, difficulty: "Difficult" },
+        { question: "What is LOD in BIM?", options: ["Level of Design", "Level of Development", "Limit of Drawing", "Level of Detail"], answer: 1, difficulty: "Difficult" }
+      ],
+      civil: [
+        // Easy (4)
+        { question: "What is the primary focus of Civil BIM?", options: ["Interior design", "Infrastructure and site modeling", "Electrical systems", "Plumbing design"], answer: 1, difficulty: "Easy" },
+        { question: "Which software is used for Civil BIM?", options: ["Civil 3D", "Revit", "Lumion", "Rhino"], answer: 0, difficulty: "Easy" },
+        { question: "What does a topographic survey provide in Civil BIM?", options: ["Cost estimates", "Site terrain data", "Lighting analysis", "Material schedules"], answer: 1, difficulty: "Easy" },
+        { question: "What is a common output of Civil BIM?", options: ["3D site model", "2D floor plans", "HVAC schedules", "Furniture layouts"], answer: 0, difficulty: "Easy" },
+        // Medium (3)
+        { question: "What is a cut and fill analysis in Civil BIM?", options: ["A structural load test", "A method to balance earthwork volumes", "A plumbing coordination", "A rendering technique"], answer: 1, difficulty: "Medium" },
+        { question: "How does Civil BIM aid in road design?", options: ["By creating furniture layouts", "By modeling alignments and profiles", "By analyzing HVAC systems", "By rendering interiors"], answer: 1, difficulty: "Medium" },
+        { question: "What is a digital terrain model (DTM)?", options: ["A 2D floor plan", "A 3D representation of site topography", "A structural analysis tool", "A cost estimation report"], answer: 1, difficulty: "Medium" },
+        // Difficult (3)
+        { question: "What is the role of GIS in Civil BIM?", options: ["Rendering animations", "Integrating geospatial data", "Structural load analysis", "Lighting simulation"], answer: 1, difficulty: "Difficult" },
+        { question: "What is a federated model in Civil BIM?", options: ["A single-discipline model", "A combined model from multiple disciplines", "A 2D drawing set", "A cost database"], answer: 1, difficulty: "Difficult" },
+        { question: "How does Civil BIM support lifecycle management?", options: ["By limiting data access", "By integrating design and maintenance data", "By reducing model accuracy", "By focusing on rendering"], answer: 1, difficulty: "Difficult" }
+      ],
+      mep: [
+        // Easy (4)
+        { question: "What does MEP stand for in BIM?", options: ["Mechanical, Electrical, Plumbing", "Model Extraction Process", "Material Estimation Plan", "Mechanical Engineering Protocol"], answer: 0, difficulty: "Easy" },
+        { question: "Which system is modeled in MEP BIM?", options: ["Structural beams", "HVAC systems", "Furniture layouts", "Exterior cladding"], answer: 1, difficulty: "Easy" },
+        { question: "What is a benefit of MEP BIM?", options: ["Reduced coordination", "Improved system clash detection", "Increased project cost", "Slower design process"], answer: 1, difficulty: "Easy" },
+        { question: "What software is commonly used for MEP BIM?", options: ["Revit MEP", "AutoCAD", "Sketchup", "Blender"], answer: 0, difficulty: "Easy" },
+        // Medium (3)
+        { question: "What is a spool drawing in MEP BIM?", options: ["A 3D rendering", "A detailed fabrication drawing", "A cost estimate", "A site plan"], answer: 1, difficulty: "Medium" },
+        { question: "How does MEP BIM improve energy analysis?", options: ["By limiting data", "By integrating system performance data", "By reducing model accuracy", "By focusing on rendering"], answer: 1, difficulty: "Medium" },
+        { question: "What is a common MEP BIM deliverable?", options: ["Furniture schedule", "Coordination drawings", "Topographic survey", "Interior renderings"], answer: 1, difficulty: "Medium" },
+        // Difficult (3)
+        { question: "What is the purpose of a BIM coordination meeting?", options: ["To finalize cost estimates", "To resolve interdisciplinary clashes", "To create 2D drawings", "To render animations"], answer: 1, difficulty: "Difficult" },
+        { question: "What standard ensures MEP BIM interoperability?", options: ["IFC", "DWG", "PNG", "TXT"], answer: 0, difficulty: "Difficult" },
+        { question: "How does MEP BIM support facility management?", options: ["By limiting data access", "By providing as-built system data", "By reducing model accuracy", "By focusing on rendering"], answer: 1, difficulty: "Difficult" }
+      ]
+    };
+
+    let currentDiscipline = 'architecture';
+    let userAnswers = {};
+
+    const disciplineSelect = document.getElementById('discipline');
+    const quizContainer = document.getElementById('quiz-container');
+    const quizTitle = document.getElementById('quiz-title');
+    const questionsDiv = document.getElementById('questions');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultsModal = document.getElementById('results-modal');
+    const resultsText = document.getElementById('results-text');
+    const closeModalBtn = document.getElementById('close-modal');
+
+    function loadQuiz() {
+      quizTitle.textContent = `BIM ${currentDiscipline.charAt(0).toUpperCase() + currentDiscipline.slice(1)} Quiz`;
+      questionsDiv.innerHTML = '';
+      userAnswers = {};
+
+      questions[currentDiscipline].forEach((q, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'mb-6';
+        questionDiv.innerHTML = `
+          <p class="font-semibold">${index + 1}. ${q.question} <span class="text-gray-500">(${q.difficulty})</span></p>
+          ${q.options.map((option, i) => `
+            <label class="block">
+              <input type="radio" name="q${index}" value="${i}" class="mr-2">
+              ${option}
+            </label>
+          `).join('')}
+        `;
+        questionsDiv.appendChild(questionDiv);
+      });
+    }
+
+    disciplineSelect.addEventListener('change', (e) => {
+      currentDiscipline = e.target.value;
+      loadQuiz();
+    });
+
+    submitBtn.addEventListener('click', () => {
+      let score = 0;
+      questions[currentDiscipline].forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        userAnswers[index] = selected ? parseInt(selected.value) : null;
+        if (userAnswers[index] === q.answer) score++;
+      });
+
+      resultsText.textContent = `You scored ${score} out of ${questions[currentDiscipline].length}!`;
+      resultsModal.classList.add('active');
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+      resultsModal.classList.remove('active');
+      loadQuiz();
+    });
+
+    loadQuiz();
+  </script>
+</body>
+</html>
