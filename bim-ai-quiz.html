@@ -1,0 +1,456 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIM and AI Integration Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .quiz-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .question {
+            display: none;
+        }
+        .question.active {
+            display: block;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+        }
+        .navigation {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #timer {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #d9534f;
+        }
+        #result {
+            margin-top: 20px;
+            display: none;
+        }
+        #result h2 {
+            color: #28a745;
+        }
+        #result .incorrect {
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="timer">Time Left: 10:00</div>
+        <div id="questions"></div>
+        <div class="navigation" id="navigation">
+            <button id="prev" onclick="prevQuestion()" disabled>Previous</button>
+            <button id="next" onclick="nextQuestion()">Next</button>
+            <button id="submit" onclick="submitQuiz()" style="display:none;">Submit</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const questions = [
+            // Easy Level (15 questions)
+            {
+                question: "What does BIM stand for in the context of construction?",
+                options: ["Building Information Modeling", "Business Intelligence Management", "Building Integration Model", "Basic Information Module"],
+                answer: 0,
+                level: "Easy"
+            },
+            {
+                question: "Which software is commonly used for BIM?",
+                options: ["AutoCAD", "Revit", "Photoshop", "Excel"],
+                answer: 1,
+                level: "Easy"
+            },
+            {
+                question: "What is the primary goal of integrating AI with BIM?",
+                options: ["Increase manual drafting", "Automate repetitive tasks and enhance decision-making", "Reduce project costs by eliminating software", "Replace human designers"],
+                answer: 1,
+                level: "Easy"
+            },
+            {
+                question: "Which file format is commonly used to share BIM models?",
+                options: ["PDF", "IFC", "JPEG", "TXT"],
+                answer: 1,
+                level: "Easy"
+            },
+            {
+                question: "What is a key benefit of using AI in BIM for clash detection?",
+                options: ["Manual inspection", "Automated identification of design conflicts", "Increased project timeline", "Reduced model accuracy"],
+                answer: 1,
+                level: "Easy"
+            },
+            {
+                question: "What does AI stand for?",
+                options: ["Artificial Integration", "Automated Intelligence", "Artificial Intelligence", "Advanced Interaction"],
+                answer: 2,
+                level: "Easy"
+            },
+            {
+                question: "Which BIM level involves basic 3D modeling without collaboration?",
+                options: ["Level 0", "Level 1", "Level 2", "Level 3"],
+                answer: 0,
+                level: "Easy"
+            },
+            {
+                question: "What type of data does BIM primarily manage?",
+                options: ["Financial records", "Geometric and non-geometric data", "Social media metrics", "Employee schedules"],
+                answer: 1,
+                level: "Easy"
+            },
+            {
+                question: "Which AI technique is used for predicting construction costs in BIM?",
+                options: ["Machine Learning", "Manual Estimation", "Rule-Based Systems", "Static Analysis"],
+                answer: 0,
+                level: "Easy"
+            },
+            {
+                question: "What is a BIM Execution Plan (BEP)?",
+                options: ["A financial budget", "A document outlining BIM processes and responsibilities", "A construction schedule", "A safety manual"],
+                answer: 1,
+                level: "Easy"
+            },
+            {
+                question: "Which phase of a project can AI optimize using BIM data?",
+                options: ["Only design phase", "Only construction phase", "All phases: design, construction, and operation", "Only operation phase"],
+                answer: 2,
+                level: "Easy"
+            },
+            {
+                question: "What is the purpose of a BIM model?",
+                options: ["Only aesthetic visualization", "To store and manage project information", "To replace physical construction", "To manage payroll"],
+                answer: 1,
+                level: "Easy"
+            },
+            {
+                question: "Which AI application can analyze BIM data for energy efficiency?",
+                options: ["Generative Design", "Cost Estimation", "Clash Detection", "Structural Analysis"],
+                answer: 0,
+                level: "Easy"
+            },
+            {
+                question: "What does LOD stand for in BIM?",
+                options: ["Level of Design", "Level of Detail", "Level of Development", "Both B and C"],
+                answer: 3,
+                level: "Easy"
+            },
+            {
+                question: "Which standard facilitates interoperability in BIM?",
+                options: ["ISO 9001", "ISO 19650", "ISO 14001", "ISO 27001"],
+                answer: 1,
+                level: "Easy"
+            },
+            // Medium Level (15 questions)
+            {
+                question: "How does AI enhance BIM in project scheduling?",
+                options: ["By manually adjusting timelines", "By predicting delays using historical data", "By eliminating schedules", "By increasing task complexity"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "What is a digital twin in the context of BIM and AI?",
+                options: ["A physical replica", "A virtual model updated with real-time data", "A 2D blueprint", "A static 3D model"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "Which AI algorithm is commonly used for generative design in BIM?",
+                options: ["Linear Regression", "Genetic Algorithms", "Decision Trees", "K-Means Clustering"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "What is the role of machine learning in BIM for facility management?",
+                options: ["Replacing facility managers", "Predicting maintenance needs", "Creating architectural designs", "Managing construction crews"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "How does AI improve BIM-based cost estimation?",
+                options: ["By using static templates", "By analyzing historical and real-time data", "By reducing material costs", "By eliminating cost estimates"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "What is the significance of BIM Level 2?",
+                options: ["No collaboration", "Collaborative 3D modeling with data sharing", "2D drafting only", "Fully automated construction"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "Which AI tool can optimize material selection in BIM?",
+                options: ["Rule-Based Systems", "Neural Networks", "Genetic Algorithms", "Static Databases"],
+                answer: 2,
+                level: "Medium"
+            },
+            {
+                question: "What does COBie stand for in BIM?",
+                options: ["Construction Operations Building Information Exchange", "Collaborative Object-Based Information Environment", "Cost Optimization for Building Integration", "Construction and Operations BIM Interface"],
+                answer: 0,
+                level: "Medium"
+            },
+            {
+                question: "How does AI assist in BIM for risk management?",
+                options: ["By ignoring risks", "By predicting potential risks using data analytics", "By increasing project risks", "By manual risk assessment"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "What is the purpose of 4D BIM?",
+                options: ["Cost estimation", "Time scheduling", "Energy analysis", "Structural design"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "Which AI technique can automate quantity takeoffs in BIM?",
+                options: ["Deep Learning", "Manual Counting", "Rule-Based Systems", "Static Templates"],
+                answer: 0,
+                level: "Medium"
+            },
+            {
+                question: "What is a key challenge in integrating AI with BIM?",
+                options: ["Lack of 3D models", "Data interoperability and quality", "Excessive computing power", "No need for AI in BIM"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "How does AI enhance BIM for sustainability?",
+                options: ["By increasing energy consumption", "By optimizing designs for energy efficiency", "By eliminating sustainability goals", "By reducing material usage only"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "What is the role of BIM 360 in AI integration?",
+                options: ["A static modeling tool", "A cloud-based platform for collaboration and data analysis", "A cost estimation software", "A manual drafting tool"],
+                answer: 1,
+                level: "Medium"
+            },
+            {
+                question: "Which data type is critical for AI-driven BIM analytics?",
+                options: ["Unstructured text", "Structured BIM data", "Social media data", "Audio files"],
+                answer: 1,
+                level: "Medium"
+            },
+            // Difficult Level (10 questions)
+            {
+                question: "How can reinforcement learning be applied in BIM for optimizing construction sequences?",
+                options: ["By manually sequencing tasks", "By learning optimal task sequences through trial and error", "By using static schedules", "By eliminating sequencing"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "What is the role of BIM and AI in parametric design?",
+                options: ["Creating static models", "Automating design variations based on constraints", "Reducing design flexibility", "Eliminating parametric tools"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "How does AI-driven BIM handle real-time clash detection in complex projects?",
+                options: ["By manual inspection", "By using machine learning to predict and resolve clashes", "By ignoring clashes", "By reducing model complexity"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "What is the significance of IFC schema in AI-BIM integration?",
+                options: ["It provides a proprietary format", "It enables standardized data exchange for AI processing", "It limits data sharing", "It replaces BIM software"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "How can AI optimize BIM for lifecycle cost analysis?",
+                options: ["By ignoring lifecycle costs", "By predicting long-term costs using historical and BIM data", "By focusing only on initial costs", "By manual cost tracking"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "What advanced AI technique can be used for BIM-based structural optimization?",
+                options: ["Linear Regression", "Topology Optimization with AI", "Static Analysis", "Manual Calculations"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "How does AI enhance BIM for post-construction facility management?",
+                options: ["By eliminating facility management", "By predicting equipment failures using IoT and BIM data", "By reducing BIM data usage", "By manual inspections only"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "What is the role of BIM and AI in generative urban planning?",
+                options: ["Creating static city plans", "Optimizing urban layouts based on multiple parameters", "Reducing urban planning efforts", "Eliminating BIM in urban contexts"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "How does AI-driven BIM handle multi-disciplinary coordination?",
+                options: ["By isolating disciplines", "By using AI to integrate and analyze multi-disciplinary data", "By reducing coordination", "By manual data sharing"],
+                answer: 1,
+                level: "Difficult"
+            },
+            {
+                question: "What is a key challenge in implementing AI-driven BIM for real-time digital twins?",
+                options: ["Lack of 3D models", "Ensuring data accuracy and real-time updates", "Excessive computing power", "No need for digital twins"],
+                answer: 1,
+                level: "Difficult"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = new Array(questions.length).fill(null);
+        let timeLeft = 600; // 10 minutes in seconds
+        let timerInterval;
+
+        function startQuiz() {
+            displayQuestion();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                submitQuiz();
+            }
+        }
+
+        function displayQuestion() {
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = ''; // Clear previous content
+            const q = questions[currentQuestion];
+            const div = document.createElement('div');
+            div.className = 'question active';
+            div.innerHTML = `
+                <h3>Question ${currentQuestion + 1} (${q.level}): ${q.question}</h3>
+                <div class="options">
+                    ${q.options.map((option, index) => `
+                        <label><input type="radio" name="q${currentQuestion}" value="${index}" ${answers[currentQuestion] === index ? 'checked' : ''}> ${option}</label>
+                    `).join('')}
+                </div>
+            `;
+            questionsDiv.appendChild(div);
+            document.getElementById('prev').disabled = currentQuestion === 0;
+            document.getElementById('next').style.display = currentQuestion === questions.length - 1 ? 'none' : 'inline';
+            document.getElementById('submit').style.display = currentQuestion === questions.length - 1 ? 'inline' : 'none';
+        }
+
+        function nextQuestion() {
+            saveAnswer();
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            saveAnswer();
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function saveAnswer() {
+            const selected = document.querySelector(`input[name="q${currentQuestion}"]:checked`);
+            if (selected) {
+                answers[currentQuestion] = parseInt(selected.value);
+            }
+        }
+
+        function submitQuiz() {
+            saveAnswer();
+            clearInterval(timerInterval);
+            let score = 0;
+            let resultHTML = '<h2>Quiz Results</h2>';
+            questions.forEach((q, index) => {
+                const userAnswer = answers[index];
+                const correct = userAnswer === q.answer;
+                if (correct) score++;
+                resultHTML += `
+                    <p><strong>Question ${index + 1} (${q.level}):</strong> ${q.question}<br>
+                    Your Answer: ${userAnswer !== null ? q.options[userAnswer] : 'Not answered'}<br>
+                    Correct Answer: ${q.options[q.answer]}<br>
+                    <span class="${correct ? '' : 'incorrect'}">${correct ? 'Correct' : 'Incorrect'}</span></p>
+                `;
+            });
+            resultHTML += `<h3>Your Score: ${score}/${questions.length} (${(score / questions.length * 100).toFixed(2)}%)</h3>`;
+            document.getElementById('result').innerHTML = resultHTML;
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('questions').style.display = 'none';
+            document.getElementById('navigation').style.display = 'none';
+            document.getElementById('timer').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', startQuiz);
+    </script>
+</body>
+</html>
